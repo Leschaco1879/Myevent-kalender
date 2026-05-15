@@ -183,7 +183,7 @@ if (eventsError || participantsError) {
       <div style={styles.container}>
         <header style={styles.header}>
           <p style={styles.badge}>Interner Event-Kalender</p>
-          <h1 style={styles.title}>Mitarbeiter-Events</h1>
+          <h1 style={styles.title}>Events</h1>
           <p style={styles.subtitle}>
             Events planen, Flyer hochladen und Zusagen dauerhaft speichern.
           </p>
