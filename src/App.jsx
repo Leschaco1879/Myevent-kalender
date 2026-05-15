@@ -35,10 +35,11 @@ export default function App() {
       .from("participants")
       .select("*");
 
-    if (eventsError || participantsError) {
-      alert("Fehler beim Laden der Daten.");
-      console.error(eventsError || participantsError);
-    } else {
+if (eventsError || participantsError) {
+  const error = eventsError || participantsError;
+  alert("Fehler beim Laden der Daten: " + error.message);
+  console.error(error);
+} else {
       setEvents(eventsData || []);
       setParticipants(participantsData || []);
     }
