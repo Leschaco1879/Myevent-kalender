@@ -8,19 +8,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 
-const demoEvents = [
-  {
-    id: 1,
-    title: "Coffee & Cake Afternoon",
-    date: "2026-06-05",
-    time: "15:00",
-    location: "Aufenthaltsbereich",
-    description: "Gemütlicher Nachmittag mit Kaffee und Kuchen.",
-    maxParticipants: 40,
-    participants: [],
-    flyerUrl: "",
-  },
-];
+const demoEvents = [];
 
 function isPast(event) {
   return new Date(`${event.date}T23:59:59`) < new Date();
