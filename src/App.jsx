@@ -666,7 +666,7 @@ export default function App() {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#f4f6f8",
+    background: "#f8f8f8",
     padding: "24px",
     fontFamily: "Arial, sans-serif",
     color: "#1f2937",
@@ -684,7 +684,8 @@ const styles = {
   },
   badge: {
     display: "inline-block",
-    background: "#eef2ff",
+    background: "#fee2e2",
+    color: "#b91c1c",
     padding: "6px 12px",
     borderRadius: "999px",
     fontSize: "14px",
@@ -729,13 +730,15 @@ const styles = {
     padding: "22px",
     borderRadius: "18px",
     marginBottom: "20px",
-    boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    border: "1px solid #f1f1f1",
     display: "grid",
     gridTemplateColumns: "1fr 260px",
     gap: "20px",
   },
   participantBox: {
-    background: "#f9fafb",
+    background: "#fff5f5",
+    border: "1px solid #fecaca",
     padding: "16px",
     borderRadius: "14px",
   },
@@ -770,7 +773,7 @@ const styles = {
     marginTop: "12px",
   },
   primaryButton: {
-    background: "#2563eb",
+    background: "#dc2626",
     color: "white",
     border: "none",
     padding: "11px 16px",
@@ -794,7 +797,7 @@ const styles = {
     gap: "6px",
   },
   dangerButton: {
-    background: "#dc2626",
+    background: "#991b1b",
     color: "white",
     border: "none",
     padding: "11px 16px",
