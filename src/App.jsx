@@ -6,17 +6,7 @@ import {
   Plus,
   Archive,
   CheckCircle2,
-  Search,
 } from "lucide-react";
-
-const employees = [
-  "Kevin",
-  "Jens",
-  "Fabian",
-  "Julia",
-  "Ole",
-  "Maxi",
-];
 
 const demoEvents = [
   {
@@ -27,7 +17,8 @@ const demoEvents = [
     location: "Aufenthaltsbereich",
     description: "Gemütlicher Nachmittag mit Kaffee und Kuchen.",
     maxParticipants: 40,
-    participants: ["Kevin", "Fabian"],
+    participants: [],
+    flyerUrl: "",
   },
 ];
 
@@ -46,7 +37,7 @@ function formatDate(date) {
 
 export default function App() {
   const [events, setEvents] = useState(demoEvents);
-  const [employee, setEmployee] = useState(employees[0]);
+  const [name, setName] = useState("");
   const [archive, setArchive] = useState(false);
 
   const [form, setForm] = useState({
@@ -56,6 +47,7 @@ export default function App() {
     location: "",
     description: "",
     maxParticipants: "",
+    flyerUrl: "",
   });
 
   const filteredEvents = useMemo(() => {
@@ -65,17 +57,24 @@ export default function App() {
   }, [events, archive]);
 
   function toggleParticipation(eventId) {
+    const cleanName = name.trim();
+
+    if (!cleanName) {
+      alert("Bitte zuerst deinen Namen eintragen.");
+      return;
+    }
+
     setEvents((prev) =>
       prev.map((event) => {
         if (event.id !== eventId) return event;
 
-        const joined = event.participants.includes(employee);
+        const alreadyJoined = event.participants.includes(cleanName);
 
         return {
           ...event,
-          participants: joined
-            ? event.participants.filter((p) => p !== employee)
-            : [...event.participants, employee],
+          participants: alreadyJoined
+            ? event.participants.filter((p) => p !== cleanName)
+            : [...event.participants, cleanName],
         };
       })
     );
@@ -84,17 +83,23 @@ export default function App() {
   function createEvent(e) {
     e.preventDefault();
 
-    if (!form.title || !form.date || !form.time) return;
+    if (!form.title || !form.date || !form.time) {
+      alert("Bitte mindestens Titel, Datum und Uhrzeit ausfüllen.");
+      return;
+    }
 
     const newEvent = {
       id: Date.now(),
       title: form.title,
       date: form.date,
       time: form.time,
-      location: form.location,
-      description: form.description,
-      maxParticipants: Number(form.maxParticipants),
+      location: form.location || "Noch offen",
+      description: form.description || "Keine Beschreibung hinterlegt.",
+      maxParticipants: form.maxParticipants
+        ? Number(form.maxParticipants)
+        : null,
       participants: [],
+      flyerUrl: form.flyerUrl,
     };
 
     setEvents([...events, newEvent]);
@@ -106,33 +111,41 @@ export default function App() {
       location: "",
       description: "",
       maxParticipants: "",
+      flyerUrl: "",
     });
   }
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#f4f4f4",
-        padding: "30px",
-        fontFamily: "Arial",
-      }}
-    >
-      <h1>Mitarbeiter Event-Kalender</h1>
+    <div style={styles.page}>
+      <div style={styles.container}>
+        <header style={styles.header}>
+          <p style={styles.badge}>Interner Event-Kalender</p>
+          <h1 style={styles.title}>Mitarbeiter-Events</h1>
+          <p style={styles.subtitle}>
+            Events planen, Zusagen sammeln und vergangene Events automatisch
+            ausblenden.
+          </p>
+        </header>
 
-      <div
-        style={{
-          background: "white",
-          padding: "20px",
-          borderRadius: "12px",
-          marginBottom: "30px",
-        }}
-      >
-        <h2>Neues Event</h2>
+        <section style={styles.card}>
+          <h2>Dein Name</h2>
+          <input
+            style={styles.input}
+            type="text"
+            placeholder="Bitte deinen Namen eintragen"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </section>
 
-        <form onSubmit={createEvent}>
-          <div style={{ display: "grid", gap: "10px" }}>
+        <section style={styles.card}>
+          <h2>
+            <Plus size={18} /> Neues Event anlegen
+          </h2>
+
+          <form onSubmit={createEvent} style={styles.form}>
             <input
+              style={styles.input}
               placeholder="Titel"
               value={form.title}
               onChange={(e) =>
@@ -141,6 +154,7 @@ export default function App() {
             />
 
             <input
+              style={styles.input}
               type="date"
               value={form.date}
               onChange={(e) =>
@@ -149,6 +163,7 @@ export default function App() {
             />
 
             <input
+              style={styles.input}
               type="time"
               value={form.time}
               onChange={(e) =>
@@ -157,6 +172,7 @@ export default function App() {
             />
 
             <input
+              style={styles.input}
               placeholder="Ort"
               value={form.location}
               onChange={(e) =>
@@ -164,103 +180,232 @@ export default function App() {
               }
             />
 
-            <textarea
-              placeholder="Beschreibung"
-              value={form.description}
+            <input
+              style={styles.input}
+              type="number"
+              placeholder="Max. Teilnehmer"
+              value={form.maxParticipants}
               onChange={(e) =>
-                setForm({
-                  ...form,
-                  description: e.target.value,
-                })
+                setForm({ ...form, maxParticipants: e.target.value })
               }
             />
 
             <input
-              type="number"
-              placeholder="Max Teilnehmer"
-              value={form.maxParticipants}
+              style={styles.input}
+              placeholder="Flyer-Link z. B. /flyer.pdf"
+              value={form.flyerUrl}
               onChange={(e) =>
-                setForm({
-                  ...form,
-                  maxParticipants: e.target.value,
-                })
+                setForm({ ...form, flyerUrl: e.target.value })
               }
             />
 
-            <button type="submit">
-              <Plus size={16} /> Event erstellen
+            <textarea
+              style={styles.textarea}
+              placeholder="Beschreibung"
+              value={form.description}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
+            />
+
+            <button style={styles.primaryButton} type="submit">
+              Event erstellen
             </button>
-          </div>
-        </form>
-      </div>
+          </form>
+        </section>
 
-      <div style={{ marginBottom: "20px" }}>
-        <select
-          value={employee}
-          onChange={(e) => setEmployee(e.target.value)}
-        >
-          {employees.map((name) => (
-            <option key={name}>{name}</option>
-          ))}
-        </select>
-
-        <button
-          style={{ marginLeft: "10px" }}
-          onClick={() => setArchive(!archive)}
-        >
-          <Archive size={16} />{" "}
-          {archive ? "Archiv" : "Kommende Events"}
-        </button>
-      </div>
-
-      {filteredEvents.map((event) => {
-        const joined = event.participants.includes(employee);
-
-        return (
-          <div
-            key={event.id}
-            style={{
-              background: "white",
-              padding: "20px",
-              borderRadius: "12px",
-              marginBottom: "20px",
-            }}
+        <div style={styles.toolbar}>
+          <button
+            style={styles.secondaryButton}
+            onClick={() => setArchive(!archive)}
           >
-            <h2>{event.title}</h2>
+            <Archive size={16} />
+            {archive ? " Archiv anzeigen" : " Kommende Events anzeigen"}
+          </button>
+        </div>
 
-            <p>
-              <CalendarDays size={16} />{" "}
-              {formatDate(event.date)} - {event.time}
-            </p>
+        {filteredEvents.length === 0 && (
+          <div style={styles.card}>Keine Events vorhanden.</div>
+        )}
 
-            <p>
-              <MapPin size={16} /> {event.location}
-            </p>
+        {filteredEvents.map((event) => {
+          const cleanName = name.trim();
+          const joined = event.participants.includes(cleanName);
+          const freePlaces =
+            event.maxParticipants !== null
+              ? Math.max(event.maxParticipants - event.participants.length, 0)
+              : null;
 
-            <p>{event.description}</p>
+          return (
+            <section key={event.id} style={styles.eventCard}>
+              <div>
+                <h2>{event.title}</h2>
 
-            <p>
-              <Users size={16} /> Teilnehmer:{" "}
-              {event.participants.length}
-            </p>
+                <p style={styles.infoLine}>
+                  <CalendarDays size={16} />
+                  {formatDate(event.date)} · {event.time} Uhr
+                </p>
 
-            <button onClick={() => toggleParticipation(event.id)}>
-              <CheckCircle2 size={16} />{" "}
-              {joined
-                ? "Zusage zurücknehmen"
-                : "Zusagen"}
-            </button>
+                <p style={styles.infoLine}>
+                  <MapPin size={16} />
+                  {event.location}
+                </p>
 
-            <h3>Teilnehmer:</h3>
+                <p>{event.description}</p>
 
-            <ul>
-              {event.participants.map((participant) => (
-                <li key={participant}>{participant}</li>
-              ))}
-            </ul>
-          </div>
-        );
-      })}
+                {event.flyerUrl && (
+                  <p>
+                    <a href={event.flyerUrl} target="_blank" rel="noreferrer">
+                      Flyer öffnen
+                    </a>
+                  </p>
+                )}
+
+                <p style={styles.infoLine}>
+                  <Users size={16} />
+                  {event.participants.length} Zusagen
+                  {event.maxParticipants
+                    ? ` / ${event.maxParticipants} Plätze`
+                    : ""}
+                </p>
+
+                {freePlaces !== null && (
+                  <p>Noch freie Plätze: {freePlaces}</p>
+                )}
+
+                <button
+                  style={joined ? styles.secondaryButton : styles.primaryButton}
+                  onClick={() => toggleParticipation(event.id)}
+                >
+                  <CheckCircle2 size={16} />
+                  {joined ? " Zusage zurücknehmen" : " Zusagen"}
+                </button>
+              </div>
+
+              <div style={styles.participantBox}>
+                <h3>Teilnehmer</h3>
+
+                {event.participants.length === 0 ? (
+                  <p>Noch keine Zusagen.</p>
+                ) : (
+                  <ul>
+                    {event.participants.map((participant) => (
+                      <li key={participant}>{participant}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </section>
+          );
+        })}
+      </div>
     </div>
   );
 }
+
+const styles = {
+  page: {
+    minHeight: "100vh",
+    background: "#f4f6f8",
+    padding: "24px",
+    fontFamily: "Arial, sans-serif",
+    color: "#1f2937",
+  },
+  container: {
+    maxWidth: "1000px",
+    margin: "0 auto",
+  },
+  header: {
+    background: "white",
+    padding: "28px",
+    borderRadius: "18px",
+    marginBottom: "20px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+  },
+  badge: {
+    display: "inline-block",
+    background: "#eef2ff",
+    padding: "6px 12px",
+    borderRadius: "999px",
+    fontSize: "14px",
+    marginBottom: "10px",
+  },
+  title: {
+    margin: 0,
+    fontSize: "34px",
+  },
+  subtitle: {
+    color: "#6b7280",
+  },
+  card: {
+    background: "white",
+    padding: "20px",
+    borderRadius: "16px",
+    marginBottom: "20px",
+    boxShadow: "0 6px 16px rgba(0,0,0,0.04)",
+  },
+  form: {
+    display: "grid",
+    gap: "10px",
+  },
+  input: {
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #d1d5db",
+    fontSize: "15px",
+  },
+  textarea: {
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #d1d5db",
+    minHeight: "90px",
+    fontSize: "15px",
+  },
+  toolbar: {
+    marginBottom: "20px",
+  },
+  eventCard: {
+    background: "white",
+    padding: "22px",
+    borderRadius: "18px",
+    marginBottom: "20px",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.05)",
+    display: "grid",
+    gridTemplateColumns: "1fr 260px",
+    gap: "20px",
+  },
+  participantBox: {
+    background: "#f9fafb",
+    padding: "16px",
+    borderRadius: "14px",
+  },
+  infoLine: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  primaryButton: {
+    background: "#2563eb",
+    color: "white",
+    border: "none",
+    padding: "11px 16px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  secondaryButton: {
+    background: "white",
+    color: "#1f2937",
+    border: "1px solid #d1d5db",
+    padding: "11px 16px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+};
